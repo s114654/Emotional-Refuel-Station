@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心情補給站 ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FFF8F0;
+    --warm1: #FF9B71;
+    --warm2: #FFCA85;
+    --warm3: #FFE0B5;
+    --rose: #FF7B8A;
+    --lavender: #C9A0DC;
+    --mint: #7ECEC4;
+    --sky: #87CEEB;
+    --text-dark: #3D2B1F;
+    --text-mid: #6B4C3B;
+    --text-light: #A07860;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: var(--cream);
+    font-family: 'Noto Serif TC', serif;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Floating background blobs */
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.35;
+    pointer-events: none;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+  .blob1 { width: 420px; height: 420px; background: var(--warm2); top: -80px; left: -100px; animation-delay: 0s; }
+  .blob2 { width: 350px; height: 350px; background: var(--rose); top: 40%; right: -80px; animation-delay: 2s; }
+  .blob3 { width: 300px; height: 300px; background: var(--lavender); bottom: -60px; left: 30%; animation-delay: 4s; }
+  .blob4 { width: 200px; height: 200px; background: var(--mint); top: 60%; left: 10%; animation-delay: 1s; }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(20px, 30px) scale(1.08); }
+  }
+
+  /* Floating particles */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.4rem;
+    animation: floatUp 12s ease-in infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.4; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* Main wrapper */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 44px;
+    animation: fadeDown 0.8s ease both;
+  }
+  .header .icon-row { font-size: 2.2rem; margin-bottom: 10px; letter-spacing: 6px; }
+  .header h1 {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 3rem;
+    color: var(--text-dark);
+    line-height: 1.2;
+    text-shadow: 2px 2px 0 rgba(255,155,113,0.3);
+  }
+  .header p {
+    margin-top: 12px;
+    font-size: 1rem;
+    color: var(--text-mid);
+    line-height: 1.8;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card */
+  .card {
+    width: 100%;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(18px);
+    border-radius: 28px;
+    padding: 36px 32px 40px;
+    box-shadow: 0 8px 40px rgba(200,120,80,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    border: 1.5px solid rgba(255,210,170,0.6);
+    animation: fadeUp 0.9s ease 0.2s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-question {
+    font-size: 1.15rem;
+    color: var(--text-mid);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.9;
+  }
+
+  /* Mood grid */
+  .mood-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .mood-btn {
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    border-radius: 20px;
+    padding: 16px 8px 14px;
+    background: var(--warm3);
+    text-align: center;
+    transition: all 0.22s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .mood-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.4);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .mood-btn:hover::before { opacity: 1; }
+  .mood-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 6px 20px rgba(200,100,50,0.18); }
+
+  .mood-btn.selected {
+    border-color: var(--warm1);
+    background: linear-gradient(135deg, #FFE0B5, #FFCA85);
+    box-shadow: 0 4px 18px rgba(255,155,113,0.4);
+    transform: translateY(-4px) scale(1.06);
+  }
+
+  .mood-btn .emoji { font-size: 2rem; display: block; margin-bottom: 6px; }
+  .mood-btn .label { font-size: 0.9rem; color: var(--text-dark); font-weight: 700; }
+
+  /* Mood color themes */
+  .mood-btn[data-mood="happy"]   { background: linear-gradient(135deg, #FFF3B0, #FFD166); }
+  .mood-btn[data-mood="calm"]    { background: linear-gradient(135deg, #D0F0E8, #7ECEC4); }
+  .mood-btn[data-mood="anxious"] { background: linear-gradient(135deg, #FFE0CC, #FFB085); }
+  .mood-btn[data-mood="sad"]     { background: linear-gradient(135deg, #E0E8FF, #A0B4FF); }
+  .mood-btn[data-mood="lonely"]  { background: linear-gradient(135deg, #EAD5F5, #C9A0DC); }
+  .mood-btn[data-mood="tired"]   { background: linear-gradient(135deg, #E8E8E8, #C0B8D0); }
+  .mood-btn[data-mood="angry"]   { background: linear-gradient(135deg, #FFD5D5, #FF8B8B); }
+  .mood-btn[data-mood="lost"]    { background: linear-gradient(135deg, #D5EAF5, #88BFD8); }
+  .mood-btn[data-mood="grateful"]  { background: linear-gradient(135deg, #FFF0D5, #F9C784); }
+  .mood-btn[data-mood="depressed"] { background: linear-gradient(135deg, #D8D8E8, #9A9AB8); }
+  .mood-btn[data-mood="hurt"]      { background: linear-gradient(135deg, #FFD5E0, #FF9BAD); }
+  .mood-btn[data-mood="helpless"]  { background: linear-gradient(135deg, #DDE8F0, #8AAEC8); }
+  .mood-btn[data-mood="scared"]    { background: linear-gradient(135deg, #E8F0D8, #A8C878); }
+  .mood-btn[data-mood="content"]   { background: linear-gradient(135deg, #FFF5CC, #FFE066); }
+  .mood-btn[data-mood="blissful"]  { background: linear-gradient(135deg, #FFE8F5, #FFB3D9); }
+
+  /* Confirm button */
+  .confirm-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--warm1), var(--rose));
+    color: #fff;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 3px;
+    box-shadow: 0 6px 24px rgba(255,100,100,0.3);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .confirm-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,100,100,0.4); }
+  .confirm-btn:hover::after { opacity: 1; }
+  .confirm-btn:active { transform: translateY(0); }
+  .confirm-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  /* Quote drop zone */
+  #quote-zone {
+    width: 100%;
+    margin-top: 30px;
+    min-height: 0;
+    position: relative;
+  }
+
+  .quote-card {
+    background: linear-gradient(135deg, #fff9f2, #fff3e8);
+    border: 2px solid rgba(255,180,120,0.4);
+    border-radius: 24px;
+    padding: 32px 28px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(255,130,80,0.15);
+    position: relative;
+    overflow: hidden;
+    animation: dropIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .quote-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,210,140,0.4), transparent 70%);
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-80px) scale(0.85); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .quote-mood-label {
+    font-size: 0.85rem;
+    color: var(--warm1);
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .quote-emoji-big {
+    font-size: 3.2rem;
+    margin-bottom: 16px;
+    display: block;
+    animation: bouncePop 0.5s ease 0.4s both;
+  }
+  @keyframes bouncePop {
+    from { transform: scale(0); }
+    60%  { transform: scale(1.2); }
+    to   { transform: scale(1); }
+  }
+
+  .quote-text {
+    font-size: 1.35rem;
+    line-height: 2;
+    color: var(--text-dark);
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+  }
+  .quote-sub {
+    margin-top: 14px;
+    font-size: 0.92rem;
+    color: var(--text-light);
+    line-height: 1.8;
+  }
+
+  .again-btn {
+    margin-top: 22px;
+    display: inline-block;
+    padding: 10px 28px;
+    border-radius: 50px;
+    border: 2px solid var(--warm1);
+    background: transparent;
+    color: var(--warm1);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 2px;
+  }
+  .again-btn:hover { background: var(--warm1); color: #fff; transform: scale(1.04); }
+
+  /* Confetti burst */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: confettiFall 1.8s ease-in forwards;
+    z-index: 9999;
+  }
+  @keyframes confettiFall {
+    0%   { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(80vh) rotate(720deg); }
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="bg-blob blob3"></div>
+<div class="bg-blob blob4"></div>
+
+<!-- Floating particles -->
+<div id="particles"></div>
+
+<div class="container">
+  <div class="header">
+    <div class="icon-row">🌸 🌼 🌿</div>
+    <h1>心情補給站</h1>
+    <p>今天的你，感覺怎麼樣呢？<br>選一個最接近你現在心情的感受吧 ✨</p>
+  </div>
+
+  <div class="card">
+    <p class="card-question">現在的你，心裡住著什麼樣的情緒？</p>
+    <div class="mood-grid">
+      <div class="mood-btn" data-mood="happy">
+        <span class="emoji">😄</span><span class="label">開心</span>
+      </div>
+      <div class="mood-btn" data-mood="calm">
+        <span class="emoji">😌</span><span class="label">平靜</span>
+      </div>
+      <div class="mood-btn" data-mood="grateful">
+        <span class="emoji">🥰</span><span class="label">感恩</span>
+      </div>
+      <div class="mood-btn" data-mood="anxious">
+        <span class="emoji">😟</span><span class="label">焦慮</span>
+      </div>
+      <div class="mood-btn" data-mood="sad">
+        <span class="emoji">😢</span><span class="label">難過</span>
+      </div>
+      <div class="mood-btn" data-mood="lonely">
+        <span class="emoji">🥺</span><span class="label">孤單</span>
+      </div>
+      <div class="mood-btn" data-mood="tired">
+        <span class="emoji">😴</span><span class="label">疲憊</span>
+      </div>
+      <div class="mood-btn" data-mood="angry">
+        <span class="emoji">😤</span><span class="label">煩躁</span>
+      </div>
+      <div class="mood-btn" data-mood="lost">
+        <span class="emoji">😶‍🌫️</span><span class="label">迷惘</span>
+      </div>
+      <div class="mood-btn" data-mood="depressed">
+        <span class="emoji">😞</span><span class="label">憂鬱</span>
+      </div>
+      <div class="mood-btn" data-mood="hurt">
+        <span class="emoji">💔</span><span class="label">受傷</span>
+      </div>
+      <div class="mood-btn" data-mood="helpless">
+        <span class="emoji">😩</span><span class="label">無助</span>
+      </div>
+      <div class="mood-btn" data-mood="scared">
+        <span class="emoji">😨</span><span class="label">恐懼</span>
+      </div>
+      <div class="mood-btn" data-mood="content">
+        <span class="emoji">😊</span><span class="label">滿足</span>
+      </div>
+      <div class="mood-btn" data-mood="blissful">
+        <span class="emoji">🥹</span><span class="label">幸福</span>
+      </div>
+    </div>
+    <button class="confirm-btn" id="confirm-btn" disabled>送出我的心情 ✦</button>
+  </div>
+
+  <div id="quote-zone"></div>
+
+  <div class="footer">每一種情緒都是真實的你 💛</div>
+</div>
+
+<script>
+const QUOTES = {
+  happy: [
+    { text: "開心的感覺就像陽光，你把它帶給了自己，也悄悄照亮了身邊的人。", sub: "繼續感受這份快樂，讓它成為你前進的能量吧！", emoji: "☀️" },
+    { text: "你的笑容是這個世界上最美好的風景之一。", sub: "好好珍惜這份開心，它是你努力換來的禮物。", emoji: "🌻" },
+    { text: "快樂是你最自然的狀態，你值得擁有每一刻的幸福。", sub: "把這份喜悅分享出去，快樂只會越來越多！", emoji: "🎉" },
+    { text: "今天的你閃閃發光，這份光芒從你心底湧出，不要收起來！", sub: "繼續做讓自己快樂的事情吧。", emoji: "✨" },
+    { text: "開心是一種超能力，而你今天完全發揮了它！", sub: "用這份好心情迎接接下來的每一件事吧。", emoji: "🌈" },
+  ],
+  calm: [
+    { text: "平靜是一種智慧，你已經學會了如何與自己的內心和平共處。", sub: "在這份寧靜裡，你能聽見最真實的自己。", emoji: "🌊" },
+    { text: "心靜如水，萬物自清。你現在的狀態非常珍貴。", sub: "讓這份平靜延續下去，它會帶你走得更遠。", emoji: "🌿" },
+    { text: "不慌不忙的你，其實擁有最強大的力量。", sub: "慢下來，感受一下身邊美好的事物。", emoji: "🍃" },
+  ],
+  grateful: [
+    { text: "懂得感恩的心，是世界上最富有的靈魂。", sub: "你所珍惜的一切，也正在珍惜著你。", emoji: "🌸" },
+    { text: "感謝自己走到了今天，每一步都算數。", sub: "帶著這份感恩，你的每一天都會更加豐盛。", emoji: "🥰" },
+    { text: "你的感恩之心像一顆種子，它種下的是幸福，長出的是美好。", sub: "繼續感受生命裡那些微小而珍貴的美好吧。", emoji: "🌱" },
+  ],
+  anxious: [
+    { text: "你的焦慮說明你在乎，而在乎的人，才有能力把事情做得更好。", sub: "深呼吸三次，告訴自己：我已經盡力了，這樣就夠了。", emoji: "🌬️" },
+    { text: "山雨欲來風滿樓，但你是那棟不倒的樓。不管什麼暴風雨，你都能撐過去。", sub: "一次只處理一件事，你比你想像的更有能力。", emoji: "🏡" },
+    { text: "擔心是因為你認真，但記得：大多數擔憂的事，最後都沒有發生。", sub: "把手放在心上，感受它穩穩地跳動——你沒事的。", emoji: "💗" },
+    { text: "焦慮不是弱點，是你的心在提醒你需要休息一下。", sub: "給自己五分鐘，喝杯熱飲，讓身體先放鬆下來。", emoji: "☕" },
+  ],
+  sad: [
+    { text: "難過的時候，允許眼淚流下來。眼淚不是軟弱，是你勇敢去感受的證明。", sub: "哭完之後，你還是那個堅強的自己。", emoji: "🌧️" },
+    { text: "就算此刻很沉重，烏雲終究會散開，太陽不會永遠躲著你。", sub: "你不需要假裝沒事，先好好陪著自己就好。", emoji: "🌤️" },
+    { text: "悲傷是心在癒合的方式，你正在慢慢變得更完整。", sub: "今天可以不用很勇敢，明天的你會更有力氣。", emoji: "🌷" },
+    { text: "你允許自己難過，這已經是一種很了不起的勇氣了。", sub: "記住：再長的夜，也有天亮的時候。", emoji: "🌙" },
+  ],
+  lonely: [
+    { text: "孤單的時候，記住：全世界至少有一個人，正在想著你。", sub: "你不是一個人，只是還沒遇到那個頻率對的人而已。", emoji: "💌" },
+    { text: "能與自己獨處，是一種了不起的能力。你正在成為自己最好的陪伴。", sub: "試著給自己一個擁抱，你值得被溫柔對待。", emoji: "🫂" },
+    { text: "就算此刻只有你一個人，你也是完整的、足夠的、值得被愛的。", sub: "孤單不是缺陷，是讓你更認識自己的機會。", emoji: "⭐" },
+  ],
+  tired: [
+    { text: "疲憊是努力過後的勳章，你已經做得很棒了。", sub: "好好休息吧，充飽電的你，才能繼續發光。", emoji: "🌙" },
+    { text: "累了就停下來，這不是放棄，是讓自己走得更遠的智慧。", sub: "今天可以做得少一點，給自己喘息的空間。", emoji: "🛌" },
+    { text: "你已經撐了很久了，辛苦了。現在請先把自己放在第一位。", sub: "你的休息，是為了明天更好的出發。", emoji: "💆" },
+    { text: "身體在說「我需要休息」，聽它的話吧，這是最誠實的聲音。", sub: "今晚好好睡一覺，明天又是嶄新的一天。", emoji: "🌛" },
+  ],
+  angry: [
+    { text: "煩躁說明你有邊界感，你知道什麼對你重要，這很好。", sub: "先讓自己的情緒流動，再去思考怎麼回應。", emoji: "🌪️" },
+    { text: "憤怒是一種訊號，它在告訴你：有些事需要改變了。", sub: "深呼吸，你有能力找到更好的方式來面對它。", emoji: "🔥" },
+    { text: "先照顧好你自己的情緒，你不需要立刻解決所有事情。", sub: "去走走、動動身體，讓那股能量找到出口。", emoji: "🚶" },
+  ],
+  lost: [
+    { text: "迷惘不是迷失，是你正在尋找更適合自己的方向。", sub: "每一個偉大的故事，都有過迷路的章節。", emoji: "🗺️" },
+    { text: "不知道往哪走的時候，先往讓自己感覺好一點的方向走。", sub: "你不需要現在就想清楚，慢慢來也是可以的。", emoji: "🧭" },
+    { text: "就算還沒找到答案，你勇敢地繼續走著，這已經很了不起了。", sub: "迷惘是成長的一部分，你正在蛻變之中。", emoji: "🦋" },
+    { text: "有時候，迷惘是宇宙在幫你空出空間，等待更好的事物出現。", sub: "放鬆下來，讓直覺帶你走一步看一步。", emoji: "🌌" },
+  ],
+  depressed: [
+    { text: "憂鬱的感覺很沉，但你能感受到它，代表你的心還在、還活著。", sub: "不需要立刻振作，先溫柔地陪著自己就好。", emoji: "🌫️" },
+    { text: "就算此刻什麼都提不起勁，你還是值得被好好對待——尤其是被你自己。", sub: "今天只要做到一件小事就夠了，哪怕只是喝杯水。", emoji: "💧" },
+    { text: "烏雲壓頂的日子，記得：你不是烏雲，你是站在雨中的那個人，雨會停的。", sub: "如果可以，跟一個你信任的人說說你的感受。", emoji: "🌂" },
+    { text: "憂鬱不是你的錯，也不是你軟弱的證明。它只是說明你需要多一點關愛。", sub: "先從讓自己舒服一點點開始——一首歌、一點陽光都好。", emoji: "🌅" },
+  ],
+  hurt: [
+    { text: "受傷說明你曾經真心投入過，那份真心是美好的，即使結果讓你痛。", sub: "讓傷口好好癒合吧，你不需要假裝它不存在。", emoji: "🩹" },
+    { text: "心被傷到了，可以哭，可以難受，這些都是真實的你，不需要壓下去。", sub: "時間是最溫柔的醫生，你會慢慢好起來的。", emoji: "🕊️" },
+    { text: "你被傷害了，但你的價值從來沒有因此減少半分。", sub: "好好照顧現在的自己，你值得被溫柔以待。", emoji: "💗" },
+    { text: "傷痕不是失敗的標記，是你勇敢去愛、去相信的證明。", sub: "慢慢來，癒合需要時間，但你一定會越來越好。", emoji: "🌸" },
+  ],
+  helpless: [
+    { text: "感到無助的時候，先做一件最小最小的事——那就是深呼吸。你做到了。", sub: "一步一步來，不需要一次解決所有事。", emoji: "🌬️" },
+    { text: "無助不是因為你不夠好，是因為你扛了太多、太久了。", sub: "可以放下一部分嗎？你不需要一個人承擔所有。", emoji: "🤝" },
+    { text: "就算覺得什麼都做不了，你今天還是撐著來到了這裡——這就是力量。", sub: "向你信任的人說一聲「我需要幫忙」，那需要很大的勇氣。", emoji: "🌟" },
+    { text: "在最黑暗的時刻，記得：你不是一個人。世界上有人曾走過你現在的路，並且走出來了。", sub: "你也可以的，一次一小步就好。", emoji: "🕯️" },
+  ],
+  scared: [
+    { text: "恐懼說明你珍視某些事物，那份珍視本身就很美好。", sub: "深呼吸，你比你感覺到的更有能力面對它。", emoji: "🌬️" },
+    { text: "害怕是正常的，連最勇敢的人也會恐懼，不同的是他們帶著恐懼繼續前進。", sub: "你也可以，不需要等恐懼消失才行動。", emoji: "🦁" },
+    { text: "此刻的恐懼，是你的身體在保護你。謝謝它，然後輕輕告訴它：我沒事的。", sub: "找一個安全的地方，讓自己先穩下來。", emoji: "🏡" },
+    { text: "很多讓我們害怕的事，在我們鼓起勇氣面對之後，都沒有想像中那麼可怕。", sub: "你已經很勇敢了——光是承認自己害怕，就需要勇氣。", emoji: "⭐" },
+  ],
+  content: [
+    { text: "滿足是一種很深的幸福，它不吵不鬧，卻是最真實的富足。", sub: "好好感受這一刻，把它存進心裡的小金庫。", emoji: "🌾" },
+    { text: "你現在感受到的滿足，是因為你懂得欣賞自己所擁有的，這是一種智慧。", sub: "繼續帶著這份知足，你的生活會越來越有光。", emoji: "✨" },
+    { text: "不需要更多、不需要更遠，此刻的你剛剛好——這種感覺很珍貴。", sub: "讓自己靜靜待在這份滿足裡，享受它。", emoji: "🍵" },
+    { text: "滿足的心是最豐盛的心。你今天擁有的，比你以為的還要多。", sub: "把這份平靜帶著，它會一直陪著你。", emoji: "🌿" },
+  ],
+  blissful: [
+    { text: "幸福不是遙遠的終點，是你現在正在感受的這一刻。好好記住它。", sub: "你值得這份幸福，請讓自己完全接受它。", emoji: "🌸" },
+    { text: "你現在感受到的幸福，是你一路走來、努力生活換來的。謝謝你沒有放棄。", sub: "把這份溫暖分享給你愛的人，幸福會倍增。", emoji: "💞" },
+    { text: "幸福的感覺像陽光透過葉縫灑下來，輕輕的，卻暖到心裡最深的地方。", sub: "繼續讓自己被愛、被幸福包圍，你值得。", emoji: "☀️" },
+    { text: "此刻的幸福，是宇宙給你的小小獎勵，代表你走在對的路上。", sub: "微笑著繼續前進吧，更多美好正在等著你。", emoji: "🎀" },
+  ],
+};
+
+const moodLabels = {
+  happy: "開心", calm: "平靜", grateful: "感恩",
+  anxious: "焦慮", sad: "難過", lonely: "孤單",
+  tired: "疲憊", angry: "煩躁", lost: "迷惘",
+  depressed: "憂鬱", hurt: "受傷", helpless: "無助", scared: "恐懼",
+  content: "滿足", blissful: "幸福"
+};
+
+// Track last shown indices
+const lastShown = {};
+
+function getQuote(mood) {
+  const pool = QUOTES[mood];
+  let idx;
+  do { idx = Math.floor(Math.random() * pool.length); }
+  while (pool.length > 1 && idx === lastShown[mood]);
+  lastShown[mood] = idx;
+  return pool[idx];
+}
+
+// Mood selection
+let selectedMood = null;
+document.querySelectorAll('.mood-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMood = btn.dataset.mood;
+    document.getElementById('confirm-btn').disabled = false;
+  });
+});
+
+// Confirm
+document.getElementById('confirm-btn').addEventListener('click', () => {
+  if (!selectedMood) return;
+  showQuote(selectedMood);
+});
+
+function showQuote(mood) {
+  const q = getQuote(mood);
+  const zone = document.getElementById('quote-zone');
+
+  zone.innerHTML = `
+    <div class="quote-card">
+      <div class="quote-mood-label">給感到「${moodLabels[mood]}」的你</div>
+      <span class="quote-emoji-big">${q.emoji}</span>
+      <p class="quote-text">${q.text}</p>
+      <p class="quote-sub">${q.sub}</p>
+      <button class="again-btn" id="again-btn">再試一次 ↺</button>
+    </div>
+  `;
+
+  zone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  spawnConfetti();
+
+  document.getElementById('again-btn').addEventListener('click', () => {
+    zone.innerHTML = '';
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    selectedMood = null;
+    document.getElementById('confirm-btn').disabled = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// Confetti
+function spawnConfetti() {
+  const colors = ['#FF9B71','#FFCA85','#FF7B8A','#C9A0DC','#7ECEC4','#FFD166','#A0C4FF'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '0';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 0.8 + 's';
+    piece.style.animationDuration = (1.2 + Math.random() * 0.8) + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 2500);
+  }
+}
+
+// Floating particles
+const emojis = ['🌸','✨','🌼','💛','🍀','🌟','💫','🌙','🌈','🎵','🦋','🌺'];
+const container = document.getElementById('particles');
+for (let i = 0; i < 14; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.animationDelay = (Math.random() * 12) + 's';
+  p.style.animationDuration = (10 + Math.random() * 6) + 's';
+  container.appendChild(p);
+}
+</script>
+</body>
+</html>
